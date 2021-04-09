@@ -3,6 +3,18 @@ var app = express();
 var bodyParser = require('body-parser');
 var cors = require('cors');
 // 서버가 동작될 때 까지 기다리지 않고 미리 시작함 비동기
+var mariadb = require('mariadb');
+
+//mariadb 연동
+var pool = mariadb.createPool({
+  host : '127.0.0.1',
+  port : '3306',
+  user : 'Two',
+  password : 'asdf#120548',
+  database : 'webDB'
+});
+//pool.connect();
+
 
 app.listen(3000, function() {
   console.log("start! express server on port 3000");
@@ -38,7 +50,20 @@ app.post('/email_post', function(req, res) {
 //get 방식은 url에 정보가 담겨있음
 
 app.post('/ajax_send_email', function(req,res){
-  console.log(req.body.email);
-  var responseData = {'result' : 'ok', 'email' : req.body.email};
-  res.json(responseData);
+  var email = req.body.email;
+  var responseData = {};
+  const connection = pool.getConnection(conn => conn);
+
+  var query = connection.query(`select email from user where email = " ";` + email + " ", function(err, rows) {
+    if(err) throw err;
+    if(rows[0]) {
+      console.log(rows[0]);
+    } else {
+      console.log('none : ' + rows[0]);
+    }
+  });
+  //console.log(req.body.email);
+  //var responseData = {'result' : 'ok', 'email' : req.body.email};
+
+  //res.json(responseData);
 });
